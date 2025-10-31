@@ -77,9 +77,9 @@ jobs:
         run: |
           # spectool scans the spec file(s) for any Source0 entries and downloads them to the ~/rpmbuild/SOURCES
           # directory.
-          spectool -g -R --define="_buildver ${{ env.VERSION }}" ${{ inputs.specfile }}
+          spectool -g -R --define="_buildver ${{ env.VERSION }}" ant.spec
           # Build the SRPM and RPM files.
-          rpmbuild -ba --define="_buildver ${{ env.VERSION }}" ${{ inputs.specfile }}
+          rpmbuild -ba --define="_buildver ${{ env.VERSION }}" ant.spec
 
       # We cannot use colons in the name of the artifacts so we replace ":" with "-" and
       # append to the GITHUB_ENV environment variable.
