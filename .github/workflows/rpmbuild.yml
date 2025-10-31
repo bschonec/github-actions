@@ -37,7 +37,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        images: ['oraclelinux-rpm-builder:8', 'oraclelinux-rpm-builder:9']
+        images: ['oraclelinux:8']
     container:
       image: "ghcr.io/nficorporateit/${{ matrix.images }}"
       credentials:
