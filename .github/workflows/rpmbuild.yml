@@ -13,7 +13,7 @@ on:
     inputs:
       specfile:
         description: The name of the rpm spec file to use.
-        default: '*spec'
+        default: 'ant.spec'
         required: false
         type: string
       version:
