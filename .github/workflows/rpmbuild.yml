@@ -121,11 +121,10 @@ jobs:
           release_name: ${{ github.run_number }}
           draft: true
           prerelease: true
-
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         #if: startsWith(github.ref, 'refs/tags/')
-        #
+
       - name: download artifact
       uses: actions/download-artifacts@v2
       env:
