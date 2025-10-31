@@ -1,0 +1,18 @@
+{
+  "name": "rpmbuild-apache_ant",
+  "version": "1.9.7",
+  "author": "Brian Schonecker",
+  "summary": "Build an repository for building all of the Puppet module dependencies.",
+  "license": "Apache-2.0",
+  "source": "https://github.com/NFICorporateIT/rpmbuild-apache_ant.git",
+  "operatingsystem_support": [
+    {
+      "operatingsystem": "RedHat",
+      "operatingsystemrelease": [
+        "7",
+        "8",
+        "9"
+      ]
+    }
+  ]
+}
