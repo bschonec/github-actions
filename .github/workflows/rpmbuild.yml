@@ -39,7 +39,8 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        images: ['oraclelinux:8']
+        #images: ['oraclelinux:8']
+        images: ['ghcr.io/bschonec/github-actions/rpmbuild-apache_ant:8']
     container:
       image: ${{ matrix.images }}
     steps:
