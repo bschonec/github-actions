@@ -32,7 +32,7 @@ jobs:
     defaults:
       run:
         # Ensure all run: steps are using the same working directory path.
-        working-directory: ${{ inputs.working-directory }}
+        working-directory: '.'
     runs-on: ubuntu-latest
     strategy:
       fail-fast: true
