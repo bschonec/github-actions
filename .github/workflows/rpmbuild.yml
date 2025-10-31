@@ -8,6 +8,7 @@
 name: Build RPM packages
 
 on:
+  push:
   workflow_call:
     inputs:
       specfile:
