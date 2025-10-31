@@ -116,7 +116,12 @@ jobs:
             /github/home/rpmbuild/SRPMS/*.src.rpm
             /github/home/rpmbuild/RPMS/x86_64/*.rpm
           body: "Binary and source RPM files for you!"
-          tag_name: 'first'
+          tag_name: ${{ githb.run_number }}
+          release_name: ${{ github.run_number }}
+          body: New release for ${{ github.sha}}.
+          draft: true
+          prerelease: true
+
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         #if: startsWith(github.ref, 'refs/tags/')
