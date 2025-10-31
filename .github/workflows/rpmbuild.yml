@@ -43,6 +43,9 @@ jobs:
         images: ['ghcr.io/bschonec/github-actions/rpmbuild-apache_ant:8']
     container:
       image: ${{ matrix.images }}
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.GHCR_READ_TOKEN }}
     steps:
 
       - name: Checkout Repository
