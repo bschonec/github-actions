@@ -116,7 +116,7 @@ jobs:
             /github/home/rpmbuild/SRPMS/*.src.rpm
             /github/home/rpmbuild/RPMS/x86_64/*.rpm
           body: "Binary and source RPM files for you!"
-          tag_name: ${{ githb.run_number }}
+          tag_name: ${{ github.run_number }}
           release_name: ${{ github.run_number }}
           body: New release for ${{ github.sha}}.
           draft: true
