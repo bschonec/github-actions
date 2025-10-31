@@ -49,3 +49,89 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Install build dependencies
+        run: |
+          # If rpmdevtools and jq are already installed, don't try to [re]install them.
+          # This is helpful if the Docker image already has the necessary RPMs installed.
+          rpm -q rpmdevtools jq || dnf -y install rpmdevtools jq
+
+      - name: Build Github environment meta variables
+        run: |
+          NAME=$(jq -r '.name' metadata.json)
+          VERSION=$(jq -r '.version' metadata.json)
+          echo "NAME=$NAME"
+          echo "VERSION=$VERSION"
+          echo "NAME=$NAME" >> $GITHUB_ENV
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "The name: ${{ env.NAME }}"
+          echo "The version: ${{ env.VERSION }}"
+
+      - name: Prepare build environment
+        run: |
+          # Always create directories (fixes spectool issues on OL8), otherwise 'spectool' will
+          # fail later on in the workflow.
+          mkdir -p ~/rpmbuild/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}
+
+      # 'mock' simply won't work properly under Github workflows.  mock requires that the Docker containers
+      # run with root privileges and Github won't allow that.  Therefore, we're required to spin up individual
+      # docker containers for each OS.
+      - name: Build RPM using 'rpmbuild'
+        run: |
+          # spectool scans the spec file(s) for any Source0 entries and downloads them to the ~/rpmbuild/SOURCES
+          # directory.
+          spectool -g -R --define="_buildver ${{ env.VERSION }}" ant.spec
+          # Build the SRPM and RPM files.
+          rpmbuild -ba --define="_buildver ${{ env.VERSION }}" ant.spec
+
+      # We cannot use colons in the name of the artifacts so we replace ":" with "-" and
+      # append to the GITHUB_ENV environment variable.
+      - name: Sanitize matrix images names
+        run: |
+          IMAGE="${{matrix.images}}"
+          SAFE_NAME=$(echo "$IMAGE" | sed 's/:/-/g')
+          echo "SAFE_NAME=$SAFE_NAME" >> $GITHUB_ENV
+
+      - name: Upload built RPMs as artifacts
+        id: upload-artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ github.event.repository.name }}-${{env.SAFE_NAME}}
+          retention-days: 1
+          # Don't zip up the files.  Leave them as individual files.
+          compression-level: 0
+          if-no-files-found: error
+          path: |
+            ~/rpmbuild/SRPMS/*src.rpm
+            ~/rpmbuild/RPMS/**/*.rpm
+
+      - name: Display output of upload-artifact
+        run: | 
+          echo "${{ steps.upload-artifact.outputs.artifact-id }}"
+          echo "${{ steps.upload-artifact.outputs.artifact-url }}"
+
+      - name: Upload RPM to GitHub Release
+        id: release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            /github/home/rpmbuild/SRPMS/*.src.rpm
+            /github/home/rpmbuild/RPMS/x86_64/*.rpm
+          body: "Binary and source RPM files for you!"
+          tag_name: ${{ github.run_number }}
+          release_name: ${{ github.run_number }}
+          draft: true
+          prerelease: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        #if: startsWith(github.ref, 'refs/tags/')
+
+      - name: download artifact
+        uses: actions/download-artifacts@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.github_token }}
+        with:
+          upload_url: ${{ steps.release.outputs.upload_url }}
+          asset_path: /github/home/rpmbuild/RPMS/x86_64/*.rpm
+          asset_name: source_rpm.zip
+          asset_content_type: application/zip
+
