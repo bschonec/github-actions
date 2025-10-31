@@ -1,0 +1,52 @@
+name: Release RPM packages
+
+on:
+  workflow_call:
+    inputs:
+      version:
+        description: 'Version of package to be released. Must be a valid semver string without leading v. (eg: 1.2.3)'
+        default: ''
+        required: false
+        type: string
+      base-branch:
+        description: 'The branch that will be used as the origin for the release branch.'
+        required: false
+        default: ''
+        type: string
+
+
+permissions:
+  contents: write  # Needed to create GitHub releases
+  actions: read
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: read
+
+    steps:
+      - name: Download built RPMs
+        uses: actions/download-artifact@v5
+        with:
+          path: ./artifacts
+
+      - name: Verify downloaded artifacts
+        run: |
+          echo "Downloaded artifacts..."
+          find ./artifacts -type f
+          find . -type f
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          files: |
+            ./artifacts/**/*.rpm
+             ./artifacts/**/*.src..rpm
+          body: |
+            Automated release of RPM packages.
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
