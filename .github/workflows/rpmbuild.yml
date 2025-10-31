@@ -39,10 +39,7 @@ jobs:
       matrix:
         images: ['oraclelinux:8']
     container:
-      image: "ghcr.io/nficorporateit/${{ matrix.images }}"
-      credentials:
-        username: ${{ github.actor }}
-        password: ${{ secrets.GITHUB_TOKEN }}
+      image: ${{ matrix.images }}
     steps:
 
       - name: Checkout Repository
